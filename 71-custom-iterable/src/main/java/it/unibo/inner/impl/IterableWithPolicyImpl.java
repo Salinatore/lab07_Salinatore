@@ -9,15 +9,29 @@ import java.util.NoSuchElementException;
 
 public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T> {
 
-    T[] array;
+    T[] elements;
+    Predicate<T> filter;
 
-    public IterableWithPolicyImpl (T[] array_input) {
-        array = Arrays.copyOf(array_input, array_input.length);
+    public IterableWithPolicyImpl (T[] elements) {
+        this(
+                elements,
+                new Predicate<T>() {
+                    @Override
+                    public boolean test(T elem) {
+                        return true;
+                    }
+                }
+        );
+    }
+
+    public IterableWithPolicyImpl (T[] elements, Predicate<T> filter) {
+        this.elements = Arrays.copyOf(elements, elements.length);
+        setIterationPolicy(filter);
     }
 
     @Override
     public void setIterationPolicy(Predicate<T> filter) {
-
+        this.filter = filter;
     }
 
     @Override
@@ -31,13 +45,25 @@ public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T> {
 
         @Override
         public boolean hasNext() {
-            return (this.current < IterableWithPolicyImpl.this.array.length);
+            while(notTheEnd()) {
+                if(IterableWithPolicyImpl.this.filter.test(IterableWithPolicyImpl.this.elements[current])){
+                    return true;
+                } else {
+                    current++;
+                }
+            }
+
+            return false;
+        }
+
+        private boolean notTheEnd(){
+            return this.current < IterableWithPolicyImpl.this.elements.length;
         }
 
         @Override
         public T next() {
-            if(current < IterableWithPolicyImpl.this.array.length) {
-                return IterableWithPolicyImpl.this.array[this.current++];
+            if(hasNext()) {
+                return IterableWithPolicyImpl.this.elements[this.current++];
             } else {
                 throw new NoSuchElementException();
             }

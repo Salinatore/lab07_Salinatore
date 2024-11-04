@@ -12,7 +12,7 @@ public class TestIterablePlain {
     private TestIterablePlain() {}
 
     private static <T> IterableWithPolicy<T> getIterableWithPolicy(T[] elements) {
-        return new IterableWithPolicyImpl<T>(elements);
+        return new IterableWithPolicyImpl<>(elements);
     }
 
     public static void main(final String[] args) {
